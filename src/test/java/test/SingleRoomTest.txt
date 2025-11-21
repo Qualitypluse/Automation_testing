@@ -1,0 +1,60 @@
+// tests/SingleRoomTest.java
+package tests;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import pages.SingleRoomPage;
+
+import java.time.Duration;
+
+public class SingleRoomTest {
+    private WebDriver driver;
+    private WebDriverWait wait;
+    private SingleRoomPage singleRoomPage;
+    private final String URL = "https://automationintesting.online/#booking";
+
+    @BeforeClass
+    public void setUp() {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        
+        driver.get(URL); 
+        
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        singleRoomPage = new SingleRoomPage(driver);
+    }
+
+    // TC 309 - Verify Successful Booking Process with Valid Data Submission (PASS)
+    @Test(priority = 1)
+    public void testSuccessfulSingleRoomBooking() {
+        singleRoomPage.clickBookRoomButton();
+        String modalTitle = singleRoomPage.getBookingModalTitle();
+        Assert.assertTrue(modalTitle.contains("Book this room"),
+                "❌ Booking modal title is incorrect or modal is not displayed.");
+        singleRoomPage.selectAvailableDates(); 
+        singleRoomPage.fillBookingForm(
+                "Automation",
+                "Tester",
+                "tester" + System.currentTimeMillis() + "@test.com", 
+                "01234567890"
+        );
+        singleRoomPage.submitBooking();
+        Assert.assertTrue(singleRoomPage.isBookingSuccessfulMessageDisplayed(),
+                "✅ Booking Successful Message is displayed after valid submission.");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}
