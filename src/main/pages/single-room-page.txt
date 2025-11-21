@@ -1,0 +1,71 @@
+// pages/SingleRoomPage.java
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+import java.util.List;
+
+public class SingleRoomPage {
+
+    WebDriver driver;
+    WebDriverWait wait;
+
+    public SingleRoomPage(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    // Locators
+    private final By singleRoomBookButton = By.xpath("(//button[normalize-space()='Book this room'])[1]");
+    private final By firstNameField = By.cssSelector("input[placeholder='Firstname']");
+    private final By lastNameField = By.cssSelector("input[placeholder='Lastname']");
+    private final By emailField = By.cssSelector("input[placeholder='Email']");
+    private final By phoneField = By.cssSelector("input[placeholder='Phone']");
+    private final By bookButton = By.cssSelector(".btn-outline-primary");
+    private final By successfulBookingMessage = By.xpath("//h2[normalize-space()='Booking Successful!']");
+    private final By modalTitle = By.cssSelector("div.modal-header h4");
+
+    // Methods
+    public void clickBookRoomButton() {
+        wait.until(ExpectedConditions.elementToBeClickable(singleRoomBookButton)).click();
+    }
+
+    public void selectAvailableDates() {
+        List<WebElement> availableDays = driver.findElements(By.cssSelector("div.rbc-date-cell:not(.rbc-off-range)"));
+        if (availableDays.size() >= 2) {
+            availableDays.get(availableDays.size() - 2).click(); 
+            availableDays.get(availableDays.size() - 1).click(); 
+        }
+    }
+
+    public void fillBookingForm(String firstName, String lastName, String email, String phone) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameField)).sendKeys(firstName);
+        driver.findElement(lastNameField).sendKeys(lastName);
+        driver.findElement(emailField).sendKeys(email);
+        driver.findElement(phoneField).sendKeys(phone);
+    }
+
+    public void submitBooking() {
+        driver.findElement(bookButton).click();
+    }
+
+    public String getBookingModalTitle() {
+        try {
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(modalTitle)).getText();
+        } catch (Exception e) {
+            return "Modal Not Found";
+        }
+    }
+
+    public boolean isBookingSuccessfulMessageDisplayed() {
+        try {
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(successfulBookingMessage)).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}
