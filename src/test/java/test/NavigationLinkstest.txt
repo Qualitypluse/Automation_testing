@@ -1,0 +1,76 @@
+// tests/NavigationLinksTest.java
+package tests;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import pages.NavigationLinksPage;
+
+import java.time.Duration;
+
+public class NavigationLinksTest {
+    private WebDriver driver;
+    private NavigationLinksPage linksPage;
+    private final String BASE_URL = "https://automationintesting.online/";
+    private final String BOOKING_URL_FRAGMENT = "#booking";
+
+    @BeforeClass
+    public void setUp() {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        
+        driver.get(BASE_URL + BOOKING_URL_FRAGMENT); 
+        
+        linksPage = new NavigationLinksPage(driver);
+    }
+
+    // -----------------------------------------------------
+    // Bar Links Tests 
+    // -----------------------------------------------------
+
+    @Test(priority = 1)
+    public void testContactBarLinkNavigation() {
+        linksPage.clickBarLink("Contact");
+        Assert.assertTrue(linksPage.getCurrentURL().contains("#/contact"),
+                "❌ Contact Bar Link did not navigate to the correct page.");
+        driver.get(BASE_URL + BOOKING_URL_FRAGMENT);
+    }
+
+    @Test(priority = 2)
+    public void testLocationBarLinkNavigation() {
+        linksPage.clickBarLink("Location");
+        Assert.assertTrue(linksPage.getCurrentURL().contains("#/location"),
+                "❌ Location Bar Link did not navigate to the correct page.");
+        driver.get(BASE_URL + BOOKING_URL_FRAGMENT);
+    }
+
+    // -----------------------------------------------------
+    // Quick Links Tests 
+    // -----------------------------------------------------
+    
+    @Test(priority = 3)
+    public void testQuickLinksSectionIsDisplayed() {
+        Assert.assertTrue(linksPage.isQuickLinksSectionDisplayed(), 
+                "❌ Quick Links section is not visible on the page.");
+    }
+
+    @Test(priority = 4)
+    public void testFooterContactQuickLinkNavigation() {
+        linksPage.clickQuickLink("contact");
+        Assert.assertTrue(linksPage.getCurrentURL().contains("#/contact"),
+                "❌ Footer Contact Quick Link did not navigate to the correct page.");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}
